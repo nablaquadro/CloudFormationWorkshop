@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Parametri per Workshop CloudFormation
+Description: Parametri per Workshop su CloudFormation
 
 Parameters:
   AMI:
