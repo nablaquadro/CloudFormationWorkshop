@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Workshop CloudFormation
+
+Parameters:
+  AMI:
+    Description: Amazon Machine Image ID
+    Type: String
+    Default: "ami-04823729c75214919"  
+
+  InstanceType:
+    Description: Type of EC2 instance
+    Type: String
+    Default: "t3.micro" 
+    AllowedValues:
+      - "t2.micro"
+      - "t2.small"
+      - "t3.micro"
+      - "t3.small"
+
+Resources:
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      EnableDnsSupport: true
+      Tags:
+        - Key: Nome
+          Value: "Alessio"
+        - Key: Cognome
+          Value: "Ceremigna"
+        - Key: Environment
+          Value: "DevOpsAcademy"
+
+  MyInternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  MyVPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref MyInternetGateway
+      
+  MySubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: "10.0.1.0/24"
+      AvailabilityZone: !Select [0, !GetAZs ""]
+
+  MySubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: "10.0.2.0/24"
+      AvailabilityZone: !Select [1, !GetAZs ""]
+
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Security Group for EC2 instances"
+      VpcId: !Ref MyVPC
+
+  MyLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType 
+      SecurityGroups:
+        - !Ref MySecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd php php-mysql
+          systemctl enable httpd
+          systemctl start httpd
+          echo "<?php phpinfo(); ?>" > /var/www/html/index.php
+          chkconfig httpd on
+
+  MyAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchConfigurationName: !Ref MyLaunchConfig
+      MinSize: 1
+      MaxSize: 5
+      DesiredCapacity: 1
+      VPCZoneIdentifier:
+        - !Ref MySubnetA
+        - !Ref MySubnetB
+
+  MyTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref MyVPC
+      Port: 80
+      Protocol: HTTP
+      Targets:
+        - Id: !Ref MyAutoScalingGroup
+          Port: 80
+
+  MyALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+        - !Ref MySubnetA
+        - !Ref MySubnetB
+      SecurityGroups:
+        - !Ref MySecurityGroup
+
+  MyListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref MyALB
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref MyTargetGroup
+
+Outputs:
+  ALBEndpoint:
+    Description: "Application Load Balancer endpoint"
+    Value: !GetAtt MyALB.DNSName
