@@ -5,7 +5,7 @@ Parameters:
   AMI:
     Description: Amazon Machine Image ID
     Type: String
-    Default: "ami-08541bb85074a743a"  
+    Default: "ami-06935448000742e6b"  
 
   InstanceType:
     Description: Type of EC2 instance
@@ -104,7 +104,7 @@ Resources:
   MyLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      ImageId: ami-08541bb85074a743a
+      ImageId: ami-06935448000742e6b
       InstanceType: t2.micro
       SecurityGroups:
         - !Ref MySecurityGroup
