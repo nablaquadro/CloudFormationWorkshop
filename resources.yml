@@ -45,14 +45,14 @@ Resources:
     Properties:
       VpcId: !Ref MyVPC
       CidrBlock: "10.0.1.0/24"
-      AvailabilityZone: !Select [0, !GetAZs ""]
+      AvailabilityZone: eu-west-1a
 
   MySubnetB:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MyVPC
       CidrBlock: "10.0.2.0/24"
-      AvailabilityZone: !Select [1, !GetAZs ""]
+      AvailabilityZone: eu-west-1b
 
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
