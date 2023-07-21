@@ -23,6 +23,7 @@ Resources:
     Properties:
       CidrBlock: "10.0.0.0/16"
       EnableDnsSupport: true
+      EnableDnsHostnames: true
       Tags:
         - Key: Nome
           Value: "Alessio"
@@ -65,6 +66,40 @@ Resources:
     Properties:
       InternetGatewayId: !Ref MyInternetGateway
       VpcId: !Ref MyVPC
+    
+  ###
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+
+  MySubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref MySubnetA
+      RouteTableId: !Ref PublicRouteTable
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+
+  MySubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref MySubnetB
+      RouteTableId: !Ref PrivateRouteTable
+
+  InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: MyInternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref MyInternetGateway
+      RouteTableId: !Ref PublicRouteTable
+
+  ###
 
   MyLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
@@ -87,9 +122,9 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       LaunchConfigurationName: !Ref MyLaunchConfig
-      MinSize: 1
-      MaxSize: 5
-      DesiredCapacity: 1
+      MinSize: "1"
+      MaxSize: "5"
+      DesiredCapacity: "2"
       VPCZoneIdentifier:
         - !Ref MySubnetA
         - !Ref MySubnetB
