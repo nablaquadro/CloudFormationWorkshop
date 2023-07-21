@@ -60,6 +60,12 @@ Resources:
       GroupDescription: "Security Group for EC2 instances"
       VpcId: !Ref MyVPC
 
+  MyVPCGatewayAttachment: ##
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref MyInternetGateway
+      VpcId: !Ref MyVPC
+
   MyLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
