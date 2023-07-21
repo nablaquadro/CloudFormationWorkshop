@@ -37,8 +37,8 @@ Resources:
   MyVPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId: !Ref MyVPC
       InternetGatewayId: !Ref MyInternetGateway
+      VpcId: !Ref MyVPC
       
   MySubnetA:
     Type: AWS::EC2::Subnet
