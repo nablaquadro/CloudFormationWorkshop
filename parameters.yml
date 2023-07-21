@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Parametri per Workshop CloudFormation
+
+Parameters:
+  AMI:
+    Description: Amazon Machine Image ID
+    Type: String
+    Default: "ami-0abcdef1234567890"  
+
+  InstanceType:
+    Description: Type of EC2 instance
+    Type: String
+    Default: "t3.micro" 
+    AllowedValues:
+      - "t2.micro"
+      - "t2.small"
+      - "t3.micro"
+      - "t3.small"
+      
