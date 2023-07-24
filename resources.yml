@@ -125,7 +125,8 @@ Resources:
       MinSize: "2"
       MaxSize: "5"
       DesiredCapacity: "2"
-      LoadBalancerNames: !Ref MyALB
+      TargetGroupARNs:
+        - !Ref MyTargetGroup
       VPCZoneIdentifier:
         - !Ref MySubnetA  
         - !Ref MySubnetB 
